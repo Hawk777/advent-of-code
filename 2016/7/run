@@ -1,0 +1,22 @@
+#!/usr/bin/env python3
+
+import sys
+
+count = 0
+for line in sys.stdin:
+    line = line.strip()
+    inHypernet = False
+    anyAbba = False
+    abbaInHypernet = False
+    for i in range(len(line) - 3):
+        if line[i] == "[":
+            inHypernet = True
+        elif line[i] == "]":
+            inHypernet = False
+        else:
+            abba = line[i] == line[i + 3] and line[i + 1] == line[i + 2] and line[i] != line[i + 1]
+            anyAbba = anyAbba or abba
+            abbaInHypernet = abbaInHypernet or (abba and inHypernet)
+    if anyAbba and not abbaInHypernet:
+        count += 1
+print(count)
