@@ -1,0 +1,24 @@
+#!/usr/bin/env python3
+
+import sys
+
+accumulator = 0
+
+for line in sys.stdin:
+    parts = line.strip().split("-")
+    name = parts[:-1]
+    occurrences = {}
+    for part in name:
+        for char in part:
+            occurrences[char] = occurrences.get(char, 0) + 1
+    lbPos = parts[-1].find("[")
+    writtenChecksum = parts[-1][lbPos + 1:-1]
+    sectorID = int(parts[-1][:lbPos])
+    if len(occurrences) >= 5:
+        computedChecksum = [x for x in occurrences.keys()]
+        computedChecksum.sort(key=lambda elt: (-occurrences[elt], elt))
+        computedChecksum = "".join(computedChecksum[:5])
+        if computedChecksum == writtenChecksum:
+            accumulator += sectorID
+
+print(accumulator)
