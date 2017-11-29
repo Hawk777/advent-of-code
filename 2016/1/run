@@ -1,0 +1,20 @@
+#!/usr/bin/env python3
+
+import sys
+
+line = sys.stdin.readline()
+
+parts = [x.strip() for x in line.split(",")]
+deltas = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+pos = (0, 0)
+facing = 0
+for part in parts:
+    if part[0] == "L":
+        facing = (facing + 3) % 4
+    elif part[0] == "R":
+        facing = (facing + 1) % 4
+    else:
+        raise RuntimeError("Bad facing {}".format(part[0]))
+    dist = int(part[1:])
+    pos = tuple(pos[i] + deltas[facing][i] * dist for i in (0, 1))
+print(sum(abs(x) for x in pos))
