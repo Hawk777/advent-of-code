@@ -1,0 +1,61 @@
+#!/usr/bin/env python3
+
+import re
+import sys
+
+inputRE = re.compile("value ([0-9]+) goes to bot ([0-9]+)")
+botRE = re.compile("bot ([0-9]+) gives low to (bot|output) ([0-9]+) and high to (bot|output) ([0-9]+)")
+
+inputs = {}
+bots = {}
+
+for line in sys.stdin:
+    line = line.strip()
+    inputMatch = inputRE.fullmatch(line)
+    botMatch = botRE.fullmatch(line)
+    if inputMatch:
+        value = int(inputMatch.group(1))
+        bot = int(inputMatch.group(2))
+        assert value not in inputs
+        inputs[value] = bot
+    elif botMatch:
+        sourceBot = int(botMatch.group(1))
+        lowType = botMatch.group(2)
+        assert lowType in ("bot", "output")
+        lowIndex = int(botMatch.group(3))
+        highType = botMatch.group(4)
+        assert highType in ("bot", "output")
+        highIndex = int(botMatch.group(5))
+        assert sourceBot not in bots
+        bots[sourceBot] = (lowIndex if lowType == "bot" else None, highIndex if highType == "bot" else None)
+    else:
+        raise RuntimeError("Unrecognized line.")
+
+botInputs = {botID: [] for botID in bots}
+pendingBots = []
+for value, botID in inputs.items():
+    botValueList = botInputs[botID]
+    assert len(botValueList) < 2
+    botValueList.append(value)
+    botValueList.sort()
+    if len(botValueList) == 2:
+        pendingBots.append(botID)
+while pendingBots:
+    sourceBotID = pendingBots[-1]
+    del pendingBots[-1]
+    botValueList = botInputs[sourceBotID]
+    assert len(botValueList) == 2
+    for i in range(2):
+        value = botValueList[i]
+        targetBotID = bots[sourceBotID][i]
+        if targetBotID is not None:
+            targetValueList = botInputs[targetBotID]
+            assert len(targetValueList) < 2
+            targetValueList.append(value)
+            targetValueList.sort()
+            if len(targetValueList) == 2:
+                pendingBots.append(targetBotID)
+
+for botID, values in botInputs.items():
+    if values == [17, 61]:
+        print(botID)
