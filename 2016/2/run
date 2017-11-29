@@ -1,0 +1,14 @@
+#!/usr/bin/env python3
+
+import sys
+
+chars = "UDLR"
+deltas = [(0, -1), (0, 1), (-1, 0), (1, 0)]
+pos = (1, 1)
+
+for line in sys.stdin:
+    for char in line.strip():
+        index = chars.find(char)
+        pos = tuple(min(2, max(0, pos[i] + deltas[index][i])) for i in (0, 1))
+    print(pos[1] * 3 + pos[0] + 1, end="")
+print()
