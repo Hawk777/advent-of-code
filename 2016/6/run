@@ -1,0 +1,15 @@
+#!/usr/bin/env python3
+
+import sys
+
+data = None
+for line in sys.stdin:
+    if data is None:
+        data = []
+        for i in range(len(line)):
+            data.append({})
+    for i in range(len(line)):
+        data[i][line[i]] = data[i].get(line[i], 0) + 1
+for occurrences in data:
+    print(max(occurrences.keys(), key=lambda x: occurrences[x]), end="")
+print()
