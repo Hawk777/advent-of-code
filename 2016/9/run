@@ -1,0 +1,17 @@
+#!/usr/bin/env python3
+
+import sys
+
+compressed = sys.stdin.readline().strip()
+index = 0
+decompressedLength = 0
+while index < len(compressed):
+    if compressed[index] == "(":
+        closeParen = compressed.find(")", index + 1)
+        charCount, repeatCount = (int(x) for x in compressed[index + 1:closeParen].split("x"))
+        decompressedLength += charCount * repeatCount
+        index = closeParen + 1 + charCount
+    else:
+        decompressedLength += 1
+        index += 1
+print(decompressedLength)
