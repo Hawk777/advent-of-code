@@ -4,6 +4,7 @@ import sys
 
 data = None
 for line in sys.stdin:
+    line = line.strip()
     if data is None:
         data = []
         for i in range(len(line)):
