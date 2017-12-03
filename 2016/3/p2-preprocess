@@ -1,0 +1,14 @@
+#!/usr/bin/env python3
+
+import sys
+
+buffer = []
+for line in sys.stdin:
+    buffer.append(line.strip().split())
+    if len(buffer) == 3:
+        for row in range(3):
+            for col in range(3):
+                print(buffer[col][row], end="" if col == 2 else " ")
+            print()
+        del buffer[:]
+assert len(buffer) == 0
