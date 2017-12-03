@@ -20,5 +20,11 @@ for line in sys.stdin:
         computedChecksum = "".join(computedChecksum[:5])
         if computedChecksum == writtenChecksum:
             accumulator += sectorID
+            print("{}: ".format(sectorID), end="")
+            for namePart in name:
+                for char in namePart:
+                    print(chr((ord(char) - ord("a") + sectorID) % 26 + ord("a")), end="")
+                print(" ", end="")
+            print()
 
 print(accumulator)
