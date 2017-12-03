@@ -1,0 +1,23 @@
+#!/usr/bin/env python3
+
+import sys
+
+keypad = ["  1  ", " 234 ", "56789", " ABC ", "  D  "]
+chars = "UDLR"
+deltas = [(0, -1), (0, 1), (-1, 0), (1, 0)]
+pos = (0, 2)
+
+def legalPos(pos):
+    for elt in pos:
+        if not 0 <= elt < 5:
+            return False
+    return keypad[pos[1]][pos[0]] != " "
+
+for line in sys.stdin:
+    for char in line.strip():
+        index = chars.find(char)
+        newPos = tuple(pos[i] + deltas[index][i] for i in (0, 1))
+        if legalPos(newPos):
+            pos = newPos
+    print(keypad[pos[1]][pos[0]], end="")
+print()
