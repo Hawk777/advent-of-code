@@ -14,3 +14,6 @@ for line in sys.stdin:
 for occurrences in data:
     print(max(occurrences.keys(), key=lambda x: occurrences[x]), end="")
 print()
+for occurrences in data:
+    print(min(occurrences.keys(), key=lambda x: occurrences[x]), end="")
+print()
