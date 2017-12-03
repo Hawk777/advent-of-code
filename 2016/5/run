@@ -7,12 +7,18 @@ h.update(input().encode("UTF-8"))
 pw = ""
 index = 0
 pwl = 0
-while pwl < 8:
+part2pw = " " * 8
+while pwl < 8 or " " in part2pw:
     h2 = h.copy()
     h2.update(str(index).encode("UTF-8"))
     index += 1
     digest = h2.hexdigest()
     if digest[0:5] == "00000":
-        print(digest[5], end="", flush=True)
-        pwl += 1
+        if pwl < 8:
+            print(digest[5], end="", flush=True)
+            pwl += 1
+        posn = int(digest[5], base=16)
+        if posn < 8 and part2pw[posn] == " ":
+            part2pw = part2pw[:posn] + digest[6] + part2pw[posn + 1:]
 print()
+print(part2pw)
