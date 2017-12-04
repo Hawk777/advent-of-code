@@ -1,0 +1,66 @@
+#!/usr/bin/env python3
+
+
+class TextSource:
+    def __init__(self, text):
+        self._text = text
+        self._pos = 0
+
+    def eat(self, n):
+        ret = self.peek(n)
+        self._pos += n
+        return ret
+
+    def peek(self, n):
+        assert self._pos + n <= len(self._text)
+        return self._text[self._pos:self._pos + n]
+
+    def find(self, substring):
+        idx = self._text.find(substring, self._pos)
+        return -1 if idx < 0 else idx - self._pos
+
+    def remaining(self):
+        return len(self._text) - self._pos
+
+
+class LiteralBlock:
+    def __init__(self, src):
+        idx = src.find("(")
+        self._length = idx if idx >= 0 else src.remaining()
+        src.eat(self._length)
+
+    def length(self):
+        return self._length
+
+
+class RepeatedBlock:
+    def __init__(self, src):
+        assert src.eat(1) == "("
+        idx = src.find(")")
+        assert idx >= 0
+        marker = src.eat(idx)
+        assert src.eat(1) == ")"
+        charCount, repCount = (int(x) for x in marker.split("x"))
+        self._contents = parse(TextSource(src.eat(charCount)))
+        self._repCount = repCount
+
+    def length(self):
+        return self._repCount * sum(x.length() for x in self._contents)
+
+
+def parseOne(src):
+    if src.peek(1) == "(":
+        return RepeatedBlock(src)
+    else:
+        return LiteralBlock(src)
+
+
+def parse(src):
+    ret = []
+    while src.remaining() != 0:
+        ret.append(parseOne(src))
+    return ret
+
+
+compressed = input()
+print(sum(x.length() for x in parse(TextSource(compressed))))
