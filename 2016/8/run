@@ -26,4 +26,8 @@ for line in sys.stdin:
         pixels[row] = newRow
     else:
         raise RuntimeError("Unrecognized line")
+for row in pixels:
+    for elt in row:
+        print("#" if elt else ".", end="")
+    print()
 print(sum(sum(elt for elt in row) for row in pixels))
