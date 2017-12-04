@@ -2,21 +2,30 @@
 
 import sys
 
-count = 0
+countTLS = 0
+countSSL = 0
 for line in sys.stdin:
     line = line.strip()
     inHypernet = False
     anyAbba = False
     abbaInHypernet = False
-    for i in range(len(line) - 3):
+    abasInSupernet = set()
+    abasInHypernet = set()
+    for i in range(len(line) - 2):
         if line[i] == "[":
             inHypernet = True
         elif line[i] == "]":
             inHypernet = False
         else:
-            abba = line[i] == line[i + 3] and line[i + 1] == line[i + 2] and line[i] != line[i + 1]
-            anyAbba = anyAbba or abba
-            abbaInHypernet = abbaInHypernet or (abba and inHypernet)
+            if i + 3 < len(line):
+                abba = line[i] == line[i + 3] and line[i + 1] == line[i + 2] and line[i] != line[i + 1]
+                anyAbba = anyAbba or abba
+                abbaInHypernet = abbaInHypernet or (abba and inHypernet)
+            if line[i] == line[i + 2] and line[i + 1] != line[i]:
+                (abasInHypernet if inHypernet else abasInSupernet).add(line[i:i + 2])
     if anyAbba and not abbaInHypernet:
-        count += 1
-print(count)
+        countTLS += 1
+    if any(aba[1] + aba[0] in abasInHypernet for aba in abasInSupernet):
+        countSSL += 1
+print(countTLS)
+print(countSSL)
