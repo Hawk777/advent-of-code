@@ -13,7 +13,7 @@ def canStep(x, y):
     return bin(magic).count("1") % 2 == 0
 
 
-seen = {(1, 1)}
+costs = {(1, 1): 0}
 queue = collections.deque()
 queue.append(((1, 1), 0))
 while queue:
@@ -26,6 +26,9 @@ while queue:
                 print(destCost)
                 queue.clear()
                 break
-            elif destPos not in seen:
-                seen.add(destPos)
+            elif destPos not in costs:
+                costs[destPos] = destCost
                 queue.append((destPos, destCost))
+
+countMaxFifty = sum(1 for cost in costs.values() if cost <= 50)
+print(countMaxFifty)
