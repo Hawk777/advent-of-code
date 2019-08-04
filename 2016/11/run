@@ -13,25 +13,28 @@ def legal(state):
     return ok
 
 
-initialState = (frozenset(("PoG", "TmG", "TmM", "PmG", "RuG", "RuM", "CoG", "CoM")), frozenset(("PoM", "PmM")), frozenset(), frozenset(), 0)
-stateMap = {initialState: 0}
-queue = collections.deque()
-queue.append(initialState)
-while queue:
-    state = queue.popleft()
-    costThis = stateMap[state]
-    startingFloor = state[4]
-    for numItemsToMove in range(1, 3):
-        if len(state[startingFloor]) >= numItemsToMove:
-            for elevatorDirection in (-1, 1):
-                endingFloor = startingFloor + elevatorDirection
-                if 0 <= endingFloor <= 3:
-                    for itemsToMove in itertools.combinations(state[startingFloor], numItemsToMove):
-                        itemsToMove = frozenset(itemsToMove)
-                        newState = tuple((state[i] | itemsToMove) if i == endingFloor else (state[i] - itemsToMove) if i == startingFloor else state[i] for i in range(4)) + (endingFloor,)
-                        if legal(newState) and newState not in stateMap:
-                            stateMap[newState] = costThis + 1
-                            queue.append(newState)
+def run(initialState):
+    stateMap = {initialState: 0}
+    queue = collections.deque()
+    queue.append(initialState)
+    while queue:
+        state = queue.popleft()
+        costThis = stateMap[state]
+        startingFloor = state[4]
+        for numItemsToMove in range(1, 3):
+            if len(state[startingFloor]) >= numItemsToMove:
+                for elevatorDirection in (-1, 1):
+                    endingFloor = startingFloor + elevatorDirection
+                    if 0 <= endingFloor <= 3:
+                        for itemsToMove in itertools.combinations(state[startingFloor], numItemsToMove):
+                            itemsToMove = frozenset(itemsToMove)
+                            newState = tuple((state[i] | itemsToMove) if i == endingFloor else (state[i] - itemsToMove) if i == startingFloor else state[i] for i in range(4)) + (endingFloor,)
+                            if legal(newState) and newState not in stateMap:
+                                stateMap[newState] = costThis + 1
+                                queue.append(newState)
 
-finalState = (frozenset(), frozenset(), frozenset(), frozenset().union(*initialState[0:4]), 3)
-print(stateMap[finalState])
+    finalState = (frozenset(), frozenset(), frozenset(), frozenset().union(*initialState[0:4]), 3)
+    return stateMap[finalState]
+
+print(run((frozenset(("PoG", "TmG", "TmM", "PmG", "RuG", "RuM", "CoG", "CoM")), frozenset(("PoM", "PmM")), frozenset(), frozenset(), 0)))
+print(run((frozenset(("PoG", "TmG", "TmM", "PmG", "RuG", "RuM", "CoG", "CoM", "ElG", "ElM", "DiG", "DiM")), frozenset(("PoM", "PmM")), frozenset(), frozenset(), 0)))
