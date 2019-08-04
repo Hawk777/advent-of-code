@@ -1,0 +1,49 @@
+#!/usr/bin/env python3
+
+import hashlib
+
+
+def gen_hash(index, salt):
+    h = hashlib.md5()
+    h.update(salt + f"{index}".encode("ASCII"))
+    return h.hexdigest()
+
+
+class KeyGenerator:
+    __slots__ = ("_salt", "_first_index", "_first_pos", "_hashes")
+
+    def __init__(self, salt):
+        self._salt = salt
+        self._first_index = 0
+        self._first_pos = 0
+        self._hashes = [gen_hash(i, salt) for i in range(1001)]
+
+    @property
+    def index(self):
+        return self._first_index
+
+    @property
+    def is_key(self):
+        first_hash = self._hashes[self._first_pos]
+        rep_poses = (first_hash.find(ch * 3) for ch in "0123456789abcdef")
+        rep_pos = min((i for i in rep_poses if i != -1), default=None)
+        if rep_pos is None:
+            return False
+        ch = first_hash[rep_pos]
+        return any(ch * 5 in self._hashes[i] for i in range(len(self._hashes)) if i != self._first_pos)
+
+    def next(self):
+        self._first_index += 1
+        self._hashes[self._first_pos] = gen_hash(self._first_index + 1000, self._salt)
+        self._first_pos = (self._first_pos + 1) % len(self._hashes)
+
+
+kg = KeyGenerator(input().strip().encode("ASCII"))
+key_num = 1
+while True:
+    if kg.is_key:
+        print(f"Key {key_num} is at index {kg.index}.")
+        if key_num == 64:
+            break
+        key_num += 1
+    kg.next()
