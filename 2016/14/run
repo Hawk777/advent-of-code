@@ -3,20 +3,24 @@
 import hashlib
 
 
-def gen_hash(index, salt):
-    h = hashlib.md5()
-    h.update(salt + f"{index}".encode("ASCII"))
-    return h.hexdigest()
+def gen_hash(index, salt, icount):
+    text = salt + f"{index}"
+    for i in range(icount):
+        h = hashlib.md5()
+        h.update(text.encode("ASCII"))
+        text = h.hexdigest()
+    return text
 
 
 class KeyGenerator:
-    __slots__ = ("_salt", "_first_index", "_first_pos", "_hashes")
+    __slots__ = ("_salt", "_icount", "_first_index", "_first_pos", "_hashes")
 
-    def __init__(self, salt):
+    def __init__(self, salt, icount):
         self._salt = salt
+        self._icount = icount
         self._first_index = 0
         self._first_pos = 0
-        self._hashes = [gen_hash(i, salt) for i in range(1001)]
+        self._hashes = [gen_hash(i, salt, icount) for i in range(1001)]
 
     @property
     def index(self):
@@ -34,16 +38,18 @@ class KeyGenerator:
 
     def next(self):
         self._first_index += 1
-        self._hashes[self._first_pos] = gen_hash(self._first_index + 1000, self._salt)
+        self._hashes[self._first_pos] = gen_hash(self._first_index + 1000, self._salt, self._icount)
         self._first_pos = (self._first_pos + 1) % len(self._hashes)
 
 
-kg = KeyGenerator(input().strip().encode("ASCII"))
-key_num = 1
-while True:
-    if kg.is_key:
-        print(f"Key {key_num} is at index {kg.index}.")
-        if key_num == 64:
-            break
-        key_num += 1
-    kg.next()
+salt = input().strip()
+for icount in 1, 2017:
+    kg = KeyGenerator(salt, icount)
+    key_num = 1
+    while True:
+        if kg.is_key:
+            print(f"Key {key_num} is at index {kg.index}.")
+            if key_num == 64:
+                break
+            key_num += 1
+        kg.next()
