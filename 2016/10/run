@@ -27,12 +27,13 @@ for line in sys.stdin:
         assert highType in ("bot", "output")
         highIndex = int(botMatch.group(5))
         assert sourceBot not in bots
-        bots[sourceBot] = (lowIndex if lowType == "bot" else None, highIndex if highType == "bot" else None)
+        bots[sourceBot] = ((lowType, lowIndex), (highType, highIndex))
     else:
         raise RuntimeError("Unrecognized line.")
 
 botInputs = {botID: [] for botID in bots}
 pendingBots = []
+outputValues = {}
 for value, botID in inputs.items():
     botValueList = botInputs[botID]
     assert len(botValueList) < 2
@@ -47,15 +48,20 @@ while pendingBots:
     assert len(botValueList) == 2
     for i in range(2):
         value = botValueList[i]
-        targetBotID = bots[sourceBotID][i]
-        if targetBotID is not None:
-            targetValueList = botInputs[targetBotID]
+        targetType, targetID = bots[sourceBotID][i]
+        if targetType == "bot":
+            targetValueList = botInputs[targetID]
             assert len(targetValueList) < 2
             targetValueList.append(value)
             targetValueList.sort()
             if len(targetValueList) == 2:
-                pendingBots.append(targetBotID)
+                pendingBots.append(targetID)
+        else:
+            assert targetID not in outputValues
+            outputValues[targetID] = value
 
 for botID, values in botInputs.items():
     if values == [17, 61]:
         print(botID)
+
+print(outputValues[0] * outputValues[1] * outputValues[2])
