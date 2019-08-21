@@ -1,0 +1,60 @@
+#!/usr/bin/env python3
+
+import functools
+import operator
+import re
+import sys
+
+import crt
+
+
+def read_input():
+    """
+    Read the input from standard in.
+
+    Return a list of discs, zero-indexed by disc number, each of which is a
+    tuple of (# positions, starting position).
+    """
+    discs = []
+    exp = re.compile(R"Disc #([0-9]+) has ([0-9]+) positions; at time=0, it is at position ([0-9]+).")
+    for line in sys.stdin:
+        line = line.strip()
+        m = exp.fullmatch(line)
+        if not m:
+            raise ValueError(f"Line {line} does not match input pattern.")
+        disc_num, positions, start_pos = (int(x) for x in m.groups())
+        if len(discs) < disc_num:
+            discs += [None] * (disc_num - len(discs))
+        if discs[disc_num - 1] is not None:
+            raise ValueError(f"Disc {disc_num} appears twice.")
+        discs[disc_num - 1] = (positions, start_pos)
+    return discs
+
+
+def convert_to_eqn(index, disc):
+    """
+    Convert a disc information tuple to a modular equation.
+
+    :param index: the zero-based index of the disc
+    :param disc: a tuple of (# disc positions, starting position)
+
+    Return a modular equation suitable for use with crt.crt.
+    """
+    positions, start_pos = disc
+
+    # The disc is at position start_pos at time 0. If a ball is dropped at time
+    # 0, then when the ball reaches the disc, the disc will have turned to
+    # position (start_pos + index + 1) mod positions. If the ball is dropped
+    # later, at time t, then the ball will reach the disc with the disc at
+    # position (start_pos + index + 1 + t) mod positions. We want this
+    # expression to be equal to zero.
+    #
+    # start_pos + index + 1 + t = 0 mod positions
+    # t = −(start_pos + index + 1) mod positions
+    return (-(start_pos + index + 1) % positions), positions
+
+
+discs = read_input()
+eqns = [convert_to_eqn(i, d) for i, d in enumerate(discs)]
+prod = functools.reduce(operator.mul, (n for a, n in eqns), 1)
+print(crt.crt(eqns) % prod)
