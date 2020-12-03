@@ -2,7 +2,7 @@ use std::collections::HashSet;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
-fn find_pair_adding_to(sum: u32, dataset: &Vec<u32>) -> Option<(u32, u32)> {
+fn find_pair_adding_to(sum: u32, dataset: &[u32]) -> Option<(u32, u32)> {
 	let mut seen = HashSet::<u32>::new();
 	for v in dataset {
 		if let Some(other) = sum.checked_sub(*v) {
@@ -15,9 +15,9 @@ fn find_pair_adding_to(sum: u32, dataset: &Vec<u32>) -> Option<(u32, u32)> {
 	None
 }
 
-fn find_triple_adding_to(sum: u32, dataset: &Vec<u32>) -> Option<(u32, u32, u32)> {
-	for x in dataset {
-		if let Some((y, z)) = find_pair_adding_to(sum - x, dataset) {
+fn find_triple_adding_to(sum: u32, dataset: &[u32]) -> Option<(u32, u32, u32)> {
+	for (pos, x) in dataset.iter().enumerate() {
+		if let Some((y, z)) = find_pair_adding_to(sum - x, &dataset[..pos]) {
 			return Some((*x, y, z));
 		}
 	}
